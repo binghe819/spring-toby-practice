@@ -13,8 +13,9 @@ class MethodExtractionUserDaoTest {
     private MethodExtractionUserDao userDao;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws SQLException, ClassNotFoundException {
         userDao = new MethodExtractionUserDao();
+        userDao.deleteAll();
     }
 
     @Test

@@ -13,8 +13,9 @@ class UserDaoTest {
     private UserDao userDao;
 
     @BeforeEach
-    void setUp() {
+    void setUp() throws SQLException, ClassNotFoundException {
         userDao = new UserDao();
+        userDao.deleteAll();
     }
 
     @Test

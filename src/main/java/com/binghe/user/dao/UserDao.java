@@ -52,4 +52,18 @@ public class UserDao {
 
         return user;
     }
+
+    public void deleteAll() throws ClassNotFoundException, SQLException {
+        // DB 연결 관심
+        Class.forName("org.h2.Driver");
+        Connection con = DriverManager.getConnection("jdbc:h2:tcp://localhost/~/toby", "sa", "");
+
+        // SQL 실행 관심
+        PreparedStatement ps = con.prepareStatement("DELETE FROM users");
+        ps.executeUpdate();
+
+        // 리소스를 반환하는 관심
+        ps.close();
+        con.close();
+    }
 }
