@@ -5,6 +5,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import javax.xml.transform.Result;
 
 public class UserDao {
 
@@ -15,8 +16,6 @@ public class UserDao {
     }
 
     public void add(User user) throws SQLException, ClassNotFoundException {
-
-        // 다른 클래스로부터 커넥션을 가져온다.
         Connection con = connectionMaker.getConnection();
 
         // SQL 실행 관심
@@ -33,8 +32,6 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-
-        // 다른 클래스로부터 커넥션을 가져온다.
         Connection con = connectionMaker.getConnection();
 
         // SQL 실행 관심
@@ -54,5 +51,35 @@ public class UserDao {
         con.close();
 
         return user;
+    }
+
+    public void deleteAll() throws ClassNotFoundException, SQLException {
+        Connection con = connectionMaker.getConnection();
+
+        // SQL 실행 관심
+        PreparedStatement ps = con.prepareStatement("DELETE FROM users");
+        ps.executeUpdate();
+
+        // 리소스를 반환하는 관심
+        ps.close();
+        con.close();
+    }
+
+    public int getCount() throws ClassNotFoundException, SQLException {
+        Connection con =connectionMaker.getConnection();
+
+        // SQL 실행 관심
+        PreparedStatement ps = con.prepareStatement("SELECT count(*) FROM users");
+
+        ResultSet rs = ps.executeQuery();
+        rs.next();
+        int count = rs.getInt(1);
+
+        // 리소스를 반환하는 관심
+        rs.close();
+        ps.close();
+        con.close();
+
+        return count;
     }
 }
