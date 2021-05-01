@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.user.domain.User;
 import java.sql.SQLException;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
@@ -14,23 +15,28 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 class UserDaoTest {
 
+    private UserDao userDao;
+
+    @BeforeEach
+    void setUp() {
+        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        userDao = context.getBean("userDao", UserDao.class);
+    }
+
     @Test
     void addAndGet() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        UserDao dao = context.getBean("userDao", UserDao.class);
-
-        dao.deleteAll();
-        assertThat(dao.getCount()).isEqualTo(0);
+        userDao.deleteAll();
+        assertThat(userDao.getCount()).isEqualTo(0);
 
         User user1 = new User("mark", "binghe", "password");
         User user2 = new User("pika", "jiwoo", "password");
 
-        dao.add(user1);
-        dao.add(user2);
-        assertThat(dao.getCount()).isEqualTo(2);
+        userDao.add(user1);
+        userDao.add(user2);
+        assertThat(userDao.getCount()).isEqualTo(2);
 
-        User foundUser1 = dao.get(user1.getId());
-        User foundUser2 = dao.get(user2.getId());
+        User foundUser1 = userDao.get(user1.getId());
+        User foundUser2 = userDao.get(user2.getId());
 
         assertAll(
             () -> assertThat(foundUser1.getId()).isEqualTo(user1.getId()),
@@ -45,9 +51,6 @@ class UserDaoTest {
     @DisplayName("get 실패 테스트")
     @Test
     void get_negative() throws SQLException, ClassNotFoundException {
-        ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        UserDao userDao = context.getBean("userDao", UserDao.class);
-
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
