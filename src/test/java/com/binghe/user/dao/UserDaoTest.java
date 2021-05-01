@@ -6,7 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.user.domain.User;
 import java.sql.SQLException;
-import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.context.ApplicationContext;
@@ -15,10 +15,10 @@ import org.springframework.dao.EmptyResultDataAccessException;
 
 class UserDaoTest {
 
-    private UserDao userDao;
+    private static UserDao userDao;
 
-    @BeforeEach
-    void setUp() {
+    @BeforeAll
+    static void beforeAll() {
         ApplicationContext context = new AnnotationConfigApplicationContext(DaoFactory.class);
         userDao = context.getBean("userDao", UserDao.class);
     }
@@ -56,5 +56,41 @@ class UserDaoTest {
 
         assertThatThrownBy(() -> userDao.get("0"))
             .isInstanceOf(EmptyResultDataAccessException.class);
+    }
+
+    @Test
+    public void deteleAll() throws SQLException, ClassNotFoundException {
+        User user1 = new User("binghe", "홍길동", "1234");
+        User user2 = new User("toby", "토비", "4567");
+
+        userDao.deleteAll();
+        assertThat(userDao.getCount()).isEqualTo(0);
+
+        userDao.add(user1);
+        userDao.deleteAll();
+        assertThat(userDao.getCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void getCount() throws SQLException, ClassNotFoundException {
+        User user1 = new User("binghe", "홍길동", "1234");
+        User user2 = new User("toby", "토비", "4567");
+        User user3 = new User("java", "자바", "8913");
+
+        // 테스트 1
+        userDao.deleteAll();
+        assertThat(userDao.getCount()).isEqualTo(0);
+
+        // 테스트 2
+        userDao.add(user1);
+        assertThat(userDao.getCount()).isEqualTo(1);
+
+        // 테스트 3
+        userDao.add(user2);
+        assertThat(userDao.getCount()).isEqualTo(2);
+
+        // 테스트 4
+        userDao.add(user3);
+        assertThat(userDao.getCount()).isEqualTo(3);
     }
 }
