@@ -12,6 +12,16 @@ import org.springframework.jdbc.core.PreparedStatementCreator;
 import org.springframework.jdbc.core.RowMapper;
 
 public class UserDao {
+    private static final RowMapper<User> userRowMapper = new RowMapper<User>() {
+        @Override
+        public User mapRow(ResultSet resultSet, int i) throws SQLException {
+            User user = new User();
+            user.setId(resultSet.getString("id"));
+            user.setName(resultSet.getString("name"));
+            user.setPassword(resultSet.getString("password"));
+            return user;
+        }
+    };
 
     private JdbcTemplate jdbcTemplate;
 
@@ -48,6 +58,7 @@ public class UserDao {
     }
 
     public User get(String id) {
+        // return this.jdbcTemplate.queryForObject("select * from users where id = ?", new Object[]{id}, userRowMapper);
         return this.jdbcTemplate.queryForObject("select * from users where id = ? ", new Object[]{id}, new RowMapper<User>() {
             @Override
             public User mapRow(ResultSet resultSet, int i) throws SQLException {
@@ -61,6 +72,7 @@ public class UserDao {
     }
 
     public List<User> getAll(){
+        // return this.jdbcTemplate.query("select * from users order by id", userRowMapper);
         return this.jdbcTemplate.query("select * from users order by id",
             new RowMapper<User>() {
                 @Override
