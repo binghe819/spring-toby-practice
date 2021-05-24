@@ -7,13 +7,17 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.binghe.DaoFactory;
 import com.binghe.domain.User;
 import java.sql.SQLException;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.dao.EmptyResultDataAccessException;
+import org.springframework.jdbc.support.SQLErrorCodeSQLExceptionTranslator;
+import org.springframework.jdbc.support.SQLExceptionTranslator;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 
@@ -22,19 +26,30 @@ import org.springframework.test.context.junit.jupiter.SpringExtension;
 class UserDaoTest {
 
     @Autowired
-    private ApplicationContext context;
-
-    @Autowired
     private UserDao userDao;
 
-    @BeforeEach
-    void context() {
-        assertThat(context).isNotNull();
-        assertThat(context.getBean("userDao", UserDao.class)).isNotNull();
+    @Autowired
+    private DataSource dataSource;
+
+    @Test
+    void sqlExceptionTranslate() {
+        userDao.deleteAll();
+
+        User user1 = new User("mark", "binghe", "password");
+
+        try {
+            userDao.add(user1);
+            userDao.add(user1);
+        } catch (DuplicateKeyException e) {
+            SQLException sqlEx = (SQLException) e.getRootCause();
+            SQLExceptionTranslator set = new SQLErrorCodeSQLExceptionTranslator(dataSource);
+//            System.out.println(set.translate(null, null, sqlEx));
+            assertThat(set.translate(null, null, sqlEx)).isInstanceOf(DuplicateKeyException.class);
+        }
     }
 
     @Test
-    void addAndGet() throws SQLException, ClassNotFoundException {
+    void addAndGet() {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -60,7 +75,7 @@ class UserDaoTest {
 
     @DisplayName("get 실패 테스트")
     @Test
-    void get_negative() throws SQLException, ClassNotFoundException {
+    void get_negative() {
         userDao.deleteAll();
         assertThat(userDao.getCount()).isEqualTo(0);
 
@@ -69,7 +84,7 @@ class UserDaoTest {
     }
 
     @Test
-    public void deteleAll() throws SQLException, ClassNotFoundException {
+    public void deteleAll() {
         User user1 = new User("binghe", "홍길동", "1234");
         User user2 = new User("toby", "토비", "4567");
 
@@ -82,7 +97,7 @@ class UserDaoTest {
     }
 
     @Test
-    public void getCount() throws SQLException, ClassNotFoundException {
+    public void getCount() {
         User user1 = new User("binghe", "홍길동", "1234");
         User user2 = new User("toby", "토비", "4567");
         User user3 = new User("java", "자바", "8913");
