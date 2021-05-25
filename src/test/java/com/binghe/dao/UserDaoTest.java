@@ -132,6 +132,22 @@ class UserDaoTest {
         }
     }
 
+    @Test
+    void update() {
+        userDao.deleteAll();
+
+        userDao.add(user1);
+        userDao.add(user2);
+
+        User updateUser1 = new User(user1.getId(), "마크크", "pass", Level.GOLD, 1000, 999);
+        userDao.update(updateUser1);
+
+        User updatedUser1 = userDao.get(user1.getId());
+        checkSameUser(updatedUser1, updateUser1);
+        User sameUser2 = userDao.get(user2.getId());
+        checkSameUser(sameUser2, user2);
+    }
+
     private void checkSameUser(User user1, User user2) {
         assertThat(user1.getId()).isEqualTo(user2.getId());
         assertThat(user1.getName()).isEqualTo(user2.getName());
