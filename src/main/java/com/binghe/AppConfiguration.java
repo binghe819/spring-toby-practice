@@ -2,6 +2,7 @@ package com.binghe;
 
 import com.binghe.dao.UserDao;
 import com.binghe.dao.UserDaoJdbc;
+import com.binghe.service.UserService;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +14,11 @@ public class AppConfiguration {
     @Bean
     public UserDao userDao(){
         return new UserDaoJdbc(dataSource());
+    }
+
+    @Bean
+    public UserService userService() {
+        return new UserService(userDao());
     }
 
     @Bean
