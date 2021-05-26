@@ -22,7 +22,7 @@ public class User {
     }
 
     public void upgradeLevel() {
-        Level nextLevel = level.getNextLevel();
+        Level nextLevel = level.nextLevel();
         if (nextLevel == null) {
             throw new IllegalArgumentException("더 이상 레벨 업이 불가능합니다.");
         }

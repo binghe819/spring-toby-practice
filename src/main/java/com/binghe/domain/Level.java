@@ -13,7 +13,7 @@ public enum Level {
         this.nextLevel = nextLevel;
     }
 
-    public Level getNextLevel() {
+    public Level nextLevel() {
         return nextLevel;
     }
 
