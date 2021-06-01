@@ -18,6 +18,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.transaction.PlatformTransactionManager;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = AppConfiguration.class)
@@ -43,7 +44,7 @@ class UserServiceTest {
     private UserDao userDao;
 
     @Autowired
-    private DataSource dataSource;
+    private PlatformTransactionManager platformTransactionManager;
 
     @Test
     void dependency() {
@@ -93,7 +94,7 @@ class UserServiceTest {
 
     @Test
     void upgradeAllOrNothing() {
-        UserService testUserService = new TestUserService(userDao, dataSource, users.get(3).getId());
+        UserService testUserService = new TestUserService(userDao, platformTransactionManager, users.get(3).getId());
 
         userDao.deleteAll();
         for (User user : users) {
@@ -121,8 +122,8 @@ class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        public TestUserService(UserDao userDao, DataSource dataSource,String id) {
-            super(userDao, dataSource);
+        public TestUserService(UserDao userDao, PlatformTransactionManager platformTransactionManager,String id) {
+            super(userDao, platformTransactionManager);
             this.id = id;
         }
 
