@@ -8,8 +8,10 @@ import com.binghe.AppConfiguration;
 import com.binghe.dao.UserDao;
 import com.binghe.domain.Level;
 import com.binghe.domain.User;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
+import javax.sql.DataSource;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -40,6 +42,9 @@ class UserServiceTest {
     @Autowired
     private UserDao userDao;
 
+    @Autowired
+    private DataSource dataSource;
+
     @Test
     void dependency() {
         assertThat(userService).isNotNull();
@@ -47,7 +52,7 @@ class UserServiceTest {
     }
 
     @Test
-    void upgradeLevels() {
+    void upgradeLevels() throws SQLException {
         userDao.deleteAll();
 
         for (User user : users) {
@@ -88,7 +93,7 @@ class UserServiceTest {
 
     @Test
     void upgradeAllOrNothing() {
-        UserService testUserService = new TestUserService(userDao, users.get(3).getId());
+        UserService testUserService = new TestUserService(userDao, dataSource, users.get(3).getId());
 
         userDao.deleteAll();
         for (User user : users) {
@@ -116,8 +121,8 @@ class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        public TestUserService(UserDao userDao, String id) {
-            super(userDao);
+        public TestUserService(UserDao userDao, DataSource dataSource,String id) {
+            super(userDao, dataSource);
             this.id = id;
         }
 
