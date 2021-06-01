@@ -1,6 +1,7 @@
 package com.binghe.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.AppConfiguration;
@@ -25,11 +26,11 @@ class UserServiceTest {
     @BeforeEach
     void setUp() {
         users = Arrays.asList(
-            new User("마크", "빙허", "password", Level.BASIC, 49, 0),
-            new User("피카", "멍청이", "babo", Level.BASIC, 50, 0),
-            new User("토비", "토비토비", "toby", Level.SILVER, 60, 29),
-            new User("포비", "포비포비", "poby", Level.SILVER, 60, 30),
-            new User("갓갓", "갓", "god", Level.GOLD, 100, 100)
+            new User("binghe", "빙허", "password", Level.BASIC, 49, 0),
+            new User("jj", "멍청이", "babo", Level.BASIC, 50, 0),
+            new User("ee", "토비토비", "toby", Level.SILVER, 60, 29),
+            new User("mm", "포비포비", "poby", Level.SILVER, 60, 30),
+            new User("gg", "갓", "god", Level.GOLD, 100, 100)
         );
     }
 
@@ -42,6 +43,7 @@ class UserServiceTest {
     @Test
     void dependency() {
         assertThat(userService).isNotNull();
+        assertThat(userDao).isNotNull();
     }
 
     @Test
@@ -82,5 +84,52 @@ class UserServiceTest {
 
         assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
+    }
+
+    @Test
+    void upgradeAllOrNothing() {
+        UserService testUserService = new TestUserService(userDao, users.get(3).getId());
+
+        userDao.deleteAll();
+        for (User user : users) {
+            userDao.add(user);
+        }
+
+        try {
+            assertThatThrownBy(() -> testUserService.upgradeLevels())
+                .isInstanceOf(TestUserServiceException.class);
+        } catch (TestUserServiceException e) {
+        }
+
+        checkLevelUpgraded(users.get(1), false);
+    }
+
+    private void checkLevelUpgraded(User user, boolean upgraded) {
+        User userUpdate = userDao.get(user.getId());
+        if (upgraded) {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
+        } else {
+            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
+        }
+    }
+
+    static class TestUserService extends UserService {
+        private String id;
+
+        public TestUserService(UserDao userDao, String id) {
+            super(userDao);
+            this.id = id;
+        }
+
+        @Override
+        protected void upgradeLevel(User user) {
+            if (user.getId().equals(this.id)) {
+                throw new TestUserServiceException();
+            }
+            super.upgradeLevel(user);
+        }
+    }
+
+    static class TestUserServiceException extends RuntimeException {
     }
 }
