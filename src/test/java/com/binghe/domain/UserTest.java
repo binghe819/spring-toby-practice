@@ -11,7 +11,7 @@ class UserTest {
 
     @BeforeEach
     void setUp() {
-        user = new User("마크", "Mark", "password", Level.BASIC, 10, 0);
+        user = new User("마크", "Mark", "password", "mark@test.com",Level.BASIC, 10, 0);
     }
 
     @Test

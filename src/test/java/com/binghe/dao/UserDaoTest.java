@@ -37,9 +37,9 @@ class UserDaoTest {
 
     @BeforeEach
     void setUp() {
-        user1 = new User("binghe", "마크", "password", Level.BASIC, 1, 0);
-        user2 = new User("pika", "피카", "pikachu", Level.SILVER, 55, 10);
-        user3 = new User("toby", "토비", "tobyspring", Level.GOLD, 100, 40);
+        user1 = new User("binghe", "마크", "password", "binghe@test.com",Level.BASIC, 1, 0);
+        user2 = new User("pika", "피카", "pikachu", "pika@test.com",Level.SILVER, 55, 10);
+        user3 = new User("toby", "토비", "tobyspring", "toby@test.com",Level.GOLD, 100, 40);
     }
 
     @Test
@@ -139,7 +139,7 @@ class UserDaoTest {
         userDao.add(user1);
         userDao.add(user2);
 
-        User updateUser1 = new User(user1.getId(), "마크크", "pass", Level.GOLD, 1000, 999);
+        User updateUser1 = new User(user1.getId(), "마크크", "pass", "mark@test.com", Level.GOLD, 1000, 999);
         userDao.update(updateUser1);
 
         User updatedUser1 = userDao.get(user1.getId());
