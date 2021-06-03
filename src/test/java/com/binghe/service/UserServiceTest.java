@@ -5,6 +5,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.AppConfiguration;
+import com.binghe.TestAppConfiguration;
 import com.binghe.dao.UserDao;
 import com.binghe.domain.Level;
 import com.binghe.domain.User;
@@ -16,12 +17,13 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailSender;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @ExtendWith(SpringExtension.class)
-@ContextConfiguration(classes = AppConfiguration.class)
+@ContextConfiguration(classes = TestAppConfiguration.class)
 class UserServiceTest {
 
     private List<User> users;
@@ -45,6 +47,9 @@ class UserServiceTest {
 
     @Autowired
     private PlatformTransactionManager platformTransactionManager;
+
+    @Autowired
+    private MailSender mailSender;
 
     @Test
     void dependency() {
@@ -94,7 +99,7 @@ class UserServiceTest {
 
     @Test
     void upgradeAllOrNothing() {
-        UserService testUserService = new TestUserService(userDao, platformTransactionManager, users.get(3).getId());
+        UserService testUserService = new TestUserService(userDao, platformTransactionManager, mailSender, users.get(3).getId());
 
         userDao.deleteAll();
         for (User user : users) {
@@ -122,8 +127,8 @@ class UserServiceTest {
     static class TestUserService extends UserService {
         private String id;
 
-        public TestUserService(UserDao userDao, PlatformTransactionManager platformTransactionManager,String id) {
-            super(userDao, platformTransactionManager);
+        public TestUserService(UserDao userDao, PlatformTransactionManager platformTransactionManager, MailSender mailSender, String id) {
+            super(userDao, platformTransactionManager, mailSender);
             this.id = id;
         }
 

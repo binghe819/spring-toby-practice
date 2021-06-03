@@ -14,7 +14,7 @@ import org.springframework.mail.javamail.JavaMailSenderImpl;
 import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
-public class AppConfiguration {
+public class TestAppConfiguration {
 
     @Bean
     public UserDao userDao(){
@@ -33,13 +33,6 @@ public class AppConfiguration {
 
     @Bean
     public MailSender mailSender() {
-        JavaMailSenderImpl sender = new JavaMailSenderImpl();
-        sender.setHost("mail.server.com");
-        return sender;
-    }
-
-    @Bean
-    public MailSender dummyMailSender() {
         return new DummyMailSender();
     }
 
@@ -52,4 +45,5 @@ public class AppConfiguration {
         dataSource.setPassword("");
         return dataSource;
     }
+
 }
