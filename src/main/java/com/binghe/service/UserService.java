@@ -74,4 +74,8 @@ public class UserService {
 
         this.mailSender.send(mailMessage);
     }
+
+    public void setMailSender(MailSender mailSender) {
+        this.mailSender = mailSender;
+    }
 }
