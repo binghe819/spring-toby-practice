@@ -2,7 +2,6 @@ package com.binghe.service;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.TestAppConfiguration;
 import com.binghe.dao.UserDao;

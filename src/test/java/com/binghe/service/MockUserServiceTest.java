@@ -7,8 +7,6 @@ import com.binghe.TestAppConfiguration;
 import com.binghe.dao.UserDao;
 import com.binghe.domain.Level;
 import com.binghe.domain.User;
-import com.binghe.service.UserServiceTest.TestUserService;
-import com.binghe.service.UserServiceTest.TestUserServiceException;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Arrays;
