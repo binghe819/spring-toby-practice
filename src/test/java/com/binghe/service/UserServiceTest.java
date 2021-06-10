@@ -19,6 +19,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * DI를 이용하여 테스트시 테스트 대역 객체를 주입하여 테스트하는 코드
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestAppConfiguration.class)
 class UserServiceTest {

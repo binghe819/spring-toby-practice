@@ -24,6 +24,9 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit.jupiter.SpringExtension;
 import org.springframework.transaction.PlatformTransactionManager;
 
+/**
+ * DI + Mock 객체 (MailSender)를 이용한 테스트 코드
+ */
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = TestAppConfiguration.class)
 public class MockUserServiceTest {
@@ -59,6 +62,7 @@ public class MockUserServiceTest {
             userDao.add(user);
         }
 
+        // Mock 객체 주입
         MockMailSender mockMailSender = new MockMailSender();
         userService.setMailSender(mockMailSender);
 
