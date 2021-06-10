@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,9 @@ import org.springframework.transaction.PlatformTransactionManager;
 public class MockUserServiceTest {
 
     @Autowired
-    private UserService userService;
+    private UserService userService; // UserServiceImpl(비즈니스 로직)을 가지고 있는 UserService(트랜잭션 경계 설정)
+    @Autowired
+    private UserServiceImpl userServiceImpl;
     @Autowired
     private UserDao userDao;
     @Autowired
@@ -50,25 +53,23 @@ public class MockUserServiceTest {
         );
     }
 
-    // userService의 MailSender 상태를 변경하기 때문에 @DirtiesContext를 사용하는 것.
-    @DirtiesContext(methodMode = MethodMode.BEFORE_METHOD)
+    @DisplayName("Mock을 이용한 단위 테스트 - 트랜잭션 기능을 뺀 비즈니스 로직만을 테스트한다.")
     @Test
-    void upgradeLevels() throws SQLException {
-        userDao.deleteAll();
-        for (User user : users) {
-            userDao.add(user);
-        }
+    void upgradeLevels() {
+        UserServiceImpl userServiceImpl = new UserServiceImpl(userDao, mailSender);
+
+        MockUserDao mockUserDao = new MockUserDao(this.users);
+        userServiceImpl.setUserDao(mockUserDao);
 
         MockMailSender mockMailSender = new MockMailSender();
-        userService.setMailSender(mockMailSender);
+        userServiceImpl.setMailSender(mockMailSender);
 
-        userService.upgradeLevels();
+        userServiceImpl.upgradeLevels();
 
-        checkLevelUpgraded(users.get(0), false);
-        checkLevelUpgraded(users.get(1), true);
-        checkLevelUpgraded(users.get(2), false);
-        checkLevelUpgraded(users.get(3), true);
-        checkLevelUpgraded(users.get(4), false);
+        List<User> updated = mockUserDao.getUpdated();
+        assertThat(updated.size()).isEqualTo(2);
+        checkUserAndLevel(updated.get(0), "jj", Level.SILVER);
+        checkUserAndLevel(updated.get(1), "mm", Level.GOLD);
 
         List<String> request = mockMailSender.getRequests();
         assertThat(request.size()).isEqualTo(2);
@@ -76,20 +77,9 @@ public class MockUserServiceTest {
         assertThat(request.get(1)).isEqualTo(users.get(3).getEmail());
     }
 
-    static class MockMailSender implements MailSender {
-        // UserService로부터 전송 요청을 받은 메일 주소 저장.
-        private List<String> requests = new ArrayList<String>();
-
-        public List<String> getRequests() {
-            return requests;
-        }
-
-        public void send(SimpleMailMessage mailMessage) throws MailException {
-            requests.add(mailMessage.getTo()[0]);
-        }
-
-        public void send(SimpleMailMessage[] mailMessage) throws MailException {
-        }
+    private void checkUserAndLevel(User updated, String expectedId, Level expectedLevel) {
+        assertThat(updated.getId()).isEqualTo(expectedId);
+        assertThat(updated.getLevel()).isEqualTo(expectedLevel);
     }
 
     @Test
@@ -108,49 +98,5 @@ public class MockUserServiceTest {
 
         assertThat(userWithLevelRead.getLevel()).isEqualTo(userWithLevel.getLevel());
         assertThat(userWithoutLevelRead.getLevel()).isEqualTo(Level.BASIC);
-    }
-
-    @Test
-    void upgradeAllOrNothing() {
-        UserService testUserService = new UserServiceTest.TestUserService(userDao, transactionManager, mailSender, users.get(3).getId());
-
-        userDao.deleteAll();
-        for (User user : users) {
-            userDao.add(user);
-        }
-
-        try {
-            assertThatThrownBy(() -> testUserService.upgradeLevels())
-                .isInstanceOf(UserServiceTest.TestUserServiceException.class);
-        } catch (UserServiceTest.TestUserServiceException e) {
-        }
-
-        checkLevelUpgraded(users.get(1), false);
-    }
-
-    private void checkLevelUpgraded(User user, boolean upgraded) {
-        User userUpdate = userDao.get(user.getId());
-        if (upgraded) {
-            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel().nextLevel());
-        } else {
-            assertThat(userUpdate.getLevel()).isEqualTo(user.getLevel());
-        }
-    }
-
-    static class TestUserService extends UserService {
-        private String id;
-
-        public TestUserService(UserDao userDao, PlatformTransactionManager platformTransactionManager, MailSender mailSender, String id) {
-            super(userDao, platformTransactionManager, mailSender);
-            this.id = id;
-        }
-
-        protected void upgradeLevel(User user) {
-            if (user.getId().equals(this.id)) throw new TestUserServiceException();
-            super.upgradeLevel(user);
-        }
-    }
-
-    static class TestUserServiceException extends RuntimeException {
     }
 }
