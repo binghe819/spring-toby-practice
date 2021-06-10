@@ -4,6 +4,8 @@ import com.binghe.dao.UserDao;
 import com.binghe.dao.UserDaoJdbc;
 import com.binghe.service.DummyMailSender;
 import com.binghe.service.UserService;
+import com.binghe.service.UserServiceImpl;
+import com.binghe.service.UserServiceTx;
 import javax.sql.DataSource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -22,7 +24,12 @@ public class TestAppConfiguration {
 
     @Bean
     public UserService userService() {
-        return new UserService(userDao(), platformTransactionManager(), mailSender());
+        return new UserServiceTx(userServiceImpl(), platformTransactionManager());
+    }
+
+    @Bean
+    public UserServiceImpl userServiceImpl() {
+        return new UserServiceImpl(userDao(), mailSender());
     }
 
     @Bean
@@ -44,5 +51,4 @@ public class TestAppConfiguration {
         dataSource.setPassword("");
         return dataSource;
     }
-
 }
