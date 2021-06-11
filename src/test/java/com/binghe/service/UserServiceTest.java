@@ -48,17 +48,23 @@ public class UserServiceTest {
     @DisplayName("Mock을 이용한 단위 테스트 - 트랜잭션 기능을 뺀 비즈니스 로직만을 테스트한다.")
     @Test
     void upgradeLevels() {
+        // 고립된 테스트에서는 테스트 대상 객체를 직접 생성하면 된다.
         UserServiceImpl userServiceImpl = new UserServiceImpl(userDao, mailSender);
 
+        // 목 객체로 만든 UserDao를 직접 DI 해준다.
         MockUserDao mockUserDao = new MockUserDao(this.users);
         userServiceImpl.setUserDao(mockUserDao);
 
+        // 목 객체로 만든 만든 MailSender를 직접 DI 해준다.
         MockMailSender mockMailSender = new MockMailSender();
         userServiceImpl.setMailSender(mockMailSender);
 
+        // 비즈니스 로직 실행
         userServiceImpl.upgradeLevels();
 
+        // MockUserDao로부터 업데이트 결과를 가져온다.
         List<User> updated = mockUserDao.getUpdated();
+        // 업데이트 횟수와 정보를 확인한다.
         assertThat(updated.size()).isEqualTo(2);
         checkUserAndLevel(updated.get(0), "jj", Level.SILVER);
         checkUserAndLevel(updated.get(1), "mm", Level.GOLD);

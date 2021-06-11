@@ -7,7 +7,9 @@ import java.util.List;
 
 public class MockUserDao implements UserDao {
 
+    // 레벨 업그레이드 후보 User 객체 목록
     private List<User> users;
+    // 업그레이드 대상 객체를 저장해둔 목록
     private List<User> updated = new ArrayList();
 
     public MockUserDao(List<User> users) {
