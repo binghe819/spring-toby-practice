@@ -2,6 +2,8 @@ package com.binghe;
 
 import com.binghe.dao.UserDao;
 import com.binghe.dao.UserDaoJdbc;
+import com.binghe.etc.FactoryBean.Message;
+import com.binghe.etc.FactoryBean.MessageFactoryBean;
 import com.binghe.service.DummyMailSender;
 import com.binghe.service.UserService;
 import com.binghe.service.UserServiceImpl;
@@ -16,6 +18,11 @@ import org.springframework.transaction.PlatformTransactionManager;
 
 @Configuration
 public class TestAppConfiguration {
+
+    @Bean
+    public Message message() throws Exception {
+        return new MessageFactoryBean("Factory Bean - binghe").getObject();
+    }
 
     @Bean
     public UserDao userDao(){
