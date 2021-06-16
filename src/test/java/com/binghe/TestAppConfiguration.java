@@ -5,6 +5,7 @@ import com.binghe.dao.UserDaoJdbc;
 import com.binghe.etc.FactoryBean.Message;
 import com.binghe.etc.FactoryBean.MessageFactoryBean;
 import com.binghe.service.DummyMailSender;
+import com.binghe.service.TxProxyFactoryBean;
 import com.binghe.service.UserService;
 import com.binghe.service.UserServiceImpl;
 import com.binghe.service.UserServiceTx;
@@ -27,6 +28,15 @@ public class TestAppConfiguration {
     @Bean
     public UserDao userDao(){
         return new UserDaoJdbc(dataSource());
+    }
+
+    @Bean
+    public TxProxyFactoryBean txProxyFactoryBean() {
+        return new TxProxyFactoryBean(
+            userServiceImpl(),
+            platformTransactionManager(),
+            "upgradeLevels",
+            UserService.class);
     }
 
     @Bean
