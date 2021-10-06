@@ -5,9 +5,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.binghe.etc.dynamic_proxy.UppercaseHandler;
 import com.binghe.etc.proxy.HelloUppercase;
+import com.binghe.etc.proxy_factory_bean.UppercaseAdvice;
 import java.lang.reflect.Proxy;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.framework.ProxyFactoryBean;
 
 class HelloProxyTest {
 
@@ -50,5 +52,24 @@ class HelloProxyTest {
         assertThat(dynamicProxy.sayHello(name)).isEqualTo("HELLO BINGHE");
         assertThat(dynamicProxy.sayHi(name)).isEqualTo("HI BINGHE");
         assertThat(dynamicProxy.sayThankYou(name)).isEqualTo("THANK YOU BINGHE");
+    }
+
+    @DisplayName("프록시 팩토리 빈 테스트 - 스프링에서 제공하는 프록시 팩토리 빈 학습 테스트")
+    @Test
+    void proxyFactoryBean() {
+        // given
+        String name = "binghe";
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+        pfBean.addAdvice(new UppercaseAdvice());
+
+        // when
+        // FactoryBean이므로 getObject()로 생성된 프록시를 가져온다.
+        Hello proxiedHello = (Hello) pfBean.getObject();
+
+        // then
+        assertThat(proxiedHello.sayHi(name)).isEqualTo("HI " + name.toUpperCase());
+        assertThat(proxiedHello.sayHello(name)).isEqualTo("HELLO " + name.toUpperCase());
+        assertThat(proxiedHello.sayThankYou(name)).isEqualTo("THANK YOU " + name.toUpperCase());
     }
 }
