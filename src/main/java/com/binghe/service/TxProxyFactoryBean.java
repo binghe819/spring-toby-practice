@@ -12,9 +12,12 @@ public class TxProxyFactoryBean implements FactoryBean<Object> {
     // 다이내믹 프록시를 생성할 때 필요한 의존성 (UserService외 인터페이스에도 적용이 가능하다.)
     private Class<?> serviceInterface;
 
-    public TxProxyFactoryBean(Object target,
-        PlatformTransactionManager transactionManager, String pattern,
-        Class<?> serviceInterface) {
+    public TxProxyFactoryBean(
+        Object target,
+        PlatformTransactionManager transactionManager,
+        String pattern,
+        Class<?> serviceInterface
+    ) {
         this.target = target;
         this.transactionManager = transactionManager;
         this.pattern = pattern;

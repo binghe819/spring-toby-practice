@@ -10,6 +10,7 @@ public class MessageFactoryBean implements FactoryBean<Message> {
         this.text = text;
     }
 
+    // 실제 빈으로 사용될 객체를 직접 생성한다. 보통 다이내믹 프록시는 여기서 생성된다.
     @Override
     public Message getObject() throws Exception {
         return Message.newMessage(this.text);
@@ -20,6 +21,7 @@ public class MessageFactoryBean implements FactoryBean<Message> {
         return Message.class;
     }
 
+    // 싱글톤 여부. 다이내믹 프록시를 등록한다면 당연히 false로 하면 된다.
     @Override
     public boolean isSingleton() {
         return false;

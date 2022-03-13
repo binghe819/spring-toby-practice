@@ -5,11 +5,16 @@ import com.binghe.dao.UserDaoJdbc;
 import com.binghe.etc.FactoryBean.Message;
 import com.binghe.etc.FactoryBean.MessageFactoryBean;
 import com.binghe.service.DummyMailSender;
+import com.binghe.service.TransactionAdvice;
 import com.binghe.service.TxProxyFactoryBean;
 import com.binghe.service.UserService;
 import com.binghe.service.UserServiceImpl;
 import com.binghe.service.UserServiceTx;
 import javax.sql.DataSource;
+
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
@@ -60,10 +65,35 @@ public class TestAppConfiguration {
     }
 
     @Bean
+    public TransactionAdvice transactionAdvice() {
+        return new TransactionAdvice(platformTransactionManager());
+    }
+
+    @Bean
+    public NameMatchMethodPointcut transactionPointcut() {
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("upgrade*");
+        return pointcut;
+    }
+
+    @Bean
+    public DefaultPointcutAdvisor transcationAdvisor() {
+        return new DefaultPointcutAdvisor(transactionPointcut(), transactionAdvice());
+    }
+
+    @Bean
+    public ProxyFactoryBean proxyFactoryBeanUserService() {
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(userServiceImpl());
+        pfBean.addAdvisor(transcationAdvisor());
+        return pfBean;
+    }
+
+    @Bean
     public DataSource dataSource() {
         DriverManagerDataSource dataSource = new DriverManagerDataSource();
         dataSource.setDriverClassName("org.h2.Driver");
-        dataSource.setUrl("jdbc:h2:tcp://localhost/~/toby");
+        dataSource.setUrl("jdbc:h2:tcp://localhost/~/Desktop/Code/h2");
         dataSource.setUsername("sa");
         dataSource.setPassword("");
         return dataSource;

@@ -7,9 +7,14 @@ import com.binghe.etc.dynamic_proxy.UppercaseHandler;
 import com.binghe.etc.proxy.HelloUppercase;
 import com.binghe.etc.proxy_factory_bean.UppercaseAdvice;
 import java.lang.reflect.Proxy;
+
+import org.aopalliance.aop.Advice;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 
 class HelloProxyTest {
 
@@ -71,5 +76,26 @@ class HelloProxyTest {
         assertThat(proxiedHello.sayHi(name)).isEqualTo("HI " + name.toUpperCase());
         assertThat(proxiedHello.sayHello(name)).isEqualTo("HELLO " + name.toUpperCase());
         assertThat(proxiedHello.sayThankYou(name)).isEqualTo("THANK YOU " + name.toUpperCase());
+    }
+
+    @DisplayName("프록시 팩토리 빈 테스트 - Advice + PointCut 테스트")
+    @Test
+    void proxyFactoryBean_Advice_PointCut() {
+        // given
+        String name = "binghe";
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("sayH*");
+        pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut, new UppercaseAdvice()));
+
+        // when
+        Hello proxiedHello = (Hello) pfBean.getObject();
+
+        // then
+        assertThat(proxiedHello.sayHi(name)).isEqualTo("HI " + name.toUpperCase());
+        assertThat(proxiedHello.sayHello(name)).isEqualTo("HELLO " + name.toUpperCase());
+        assertThat(proxiedHello.sayThankYou(name)).isEqualTo("Thank You " + name);
     }
 }
